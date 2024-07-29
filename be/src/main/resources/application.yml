@@ -1,0 +1,6 @@
+spring:
+  neo4j:
+    uri: neo4j://175.106.97.148:7687
+    authentication:
+      username: neo4j
+      password: Pa$$word
