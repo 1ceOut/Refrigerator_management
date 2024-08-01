@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Foodlist = () => {
     const [savedBarcodes, setSavedBarcodes] = useState([]);
+    const navigate = useNavigate();
 
     const fetchSavedBarcodes = async () => {
         try {
@@ -17,14 +19,12 @@ const Foodlist = () => {
         fetchSavedBarcodes();
     }, []);
 
-    const deleteBarcode = async (barcode) => {
+    const deleteBarcode = async (productName) => {
         try {
-            const response = await axios.delete(`http://localhost:8080/api/barcodes/${barcode}`);
-
-
-                fetchSavedBarcodes();
-                alert('상품이 삭제되었습니다.');
-
+            await axios.delete(`http://localhost:8080/api/barcodes/${productName}`);
+            fetchSavedBarcodes();
+            console.log(productName);
+            alert('상품 삭제함');
         } catch (error) {
             console.error('Error deleting barcode', error);
         }
@@ -34,28 +34,35 @@ const Foodlist = () => {
         <div>
             <h2>등록된 상품 목록</h2>
             {savedBarcodes.length === 0 ? (
-                <p>등록된 상품이 없습니다.</p>
+                <p>등록된 상품 없음</p>
             ) : (
                 savedBarcodes.map((barcode, index) => (
                     <div key={index} style={{ marginBottom: '20px' }}>
-                        <p><strong>제품명:</strong> {barcode.productName}</p>
-                        <p><strong>바코드:</strong> {barcode.barcode}</p>
-                        <p><strong>유통기한:</strong> {barcode.expiryDate}</p>
-                        <p><strong>회사명:</strong> {barcode.companyName}</p>
-                        <p><strong>주소:</strong> {barcode.address}</p>
-                        <p><strong>식품 유형:</strong> {barcode.productType}</p>
-                        <p><strong>허가 날짜:</strong> {barcode.permissionDate}</p>
+                        <p><strong>제품명 : </strong> {barcode.productName}</p>
+                        <p><strong>바코드 : </strong> {barcode.barcode}</p>
+                        <p><strong>수량 : </strong> {barcode.count}</p>
+                        <p><strong>등록 일자 : </strong>{barcode.createdDate}</p>
+                        <p><strong>유통 기한 : </strong> {barcode.expiryDate}</p>
+                        <p><strong>종 류 : </strong> {barcode.lcategory}</p>
+                        <p><strong>상세종류 : </strong> {barcode.scategory}</p>
                         <button
                             style={{ cursor: 'pointer', color: 'gray' }}
                             onClick={() => {
                                 const confirmDelete = window.confirm("해당 식품 삭제할꺼?");
                                 if (confirmDelete) {
-                                    deleteBarcode(barcode.barcode);
+                                    deleteBarcode(barcode.productName);
                                 }
                             }}
                         >
                             삭제
                         </button>
+                        <Link to={`/detailfood/${barcode.productName}/${barcode.scategory}`}>
+                            <button
+                                style={{ cursor: 'pointer', color: 'gray' }}
+                            >
+                                영양정보 확인하기
+                            </button>
+                        </Link>
                         <hr />
                     </div>
                 ))
