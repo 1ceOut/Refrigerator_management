@@ -21,6 +21,8 @@ public class BarcodeController {
     private final BarcodeService barcodeService;
     private static final Logger logger = LoggerFactory.getLogger(BarcodeController.class); // 로거 설정
 
+
+    //상품 추가
     @PostMapping("/barcodes")
     public ResponseEntity<Barcode> saveBarcode(@RequestBody @Validated Barcode barcode) {
         try {
@@ -31,15 +33,18 @@ public class BarcodeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 응답 본문을 null로 설정
         }
     }
+
+    //상품 조회
     @GetMapping("/list")
     public List<Barcode> listBarcodes(){
         return barcodeService.listBarcodes();
     }
 
 
-    @DeleteMapping("/barcodes/{barcode}")
-    public ResponseEntity<Void> deleteBarcode(@PathVariable String barcode) {
-        barcodeService.deleteBarcode(barcode);
+    //상품 삭제
+    @DeleteMapping("/barcodes/{productName}")
+    public ResponseEntity<Void> deleteByProductName(@PathVariable String productName) {
+        barcodeService.deleteByProductName(productName);
         return ResponseEntity.noContent().build(); // HTTP 204 상태 코드
     }
 }
