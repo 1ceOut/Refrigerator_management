@@ -1,97 +1,162 @@
 import React, { useEffect, useState } from 'react';
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+const PRODUCT_TYPES = {
+    PROCESSED: '가공식품',
+    RAW: '원자재성 식품'
+};
 
 const UserDataInput = () => {
-    const [barcode, setBarcode] = useState('');
-    const [productName, setProductName] = useState('');
-    const [expiryDate, setExpiryDate] = useState('');
-    const [count, setCount] = useState('');
-    const [productType, setProductType] = useState('');
-    const [lcategory, setLcategory] = useState('');
-    const [scategory, setScategory] = useState('');
-    const [lcategories, setLcategories] = useState([]);
-    const [scategories, setScategories] = useState([]);
-    const [showLcategories, setShowLcategories] = useState(false);
-    const [showScategories, setShowScategories] = useState(false);
+    const [form, setForm] = useState({
+        barcode: '',
+        productName: '',
+        expiryDate: '',
+        count: '',
+        productType: '',
+        lcategory: '',
+        scategory: ''
+    });
+
+    const [categories, setCategories] = useState({
+        lcategories: [],
+        scategories: []
+    });
+
+    const [showCategories, setShowCategories] = useState({
+        showLcategories: false,
+        showScategories: false
+    });
+
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (productType === '가공식품') {
+        if (form.productType === PRODUCT_TYPES.PROCESSED) {
             fetchRecipeLcategories();
-        } else if (productType === '원자재성 식품') {
-            fetchLcategories();
+        } else if (form.productType === PRODUCT_TYPES.RAW) {
+            fetchFoodLcategories();
         }
-    }, [productType]);
+    }, [form.productType]);
 
-    const fetchLcategories = async () => {
+    const fetchFoodLcategories = async () => {
         try {
             const response = await axios.post('/food/_search', {
-                query: { match_all: {} },
-                size: 4000
+                size: 0,
+                aggs: {
+                    unique_lcategories: {
+                        terms: {
+                            field: "lcategory.keyword",
+                            size: 1000
+                        }
+                    }
+                }
             });
 
-            const hits = response.data.hits.hits;
-            const uniqueLcategories = [...new Set(hits.map(hit => hit._source.lcategory))];
-            setLcategories(uniqueLcategories);
+            const buckets = response.data.aggregations.unique_lcategories.buckets;
+            const uniqueLcategories = buckets.map(bucket => bucket.key);
+            setCategories(prevState => ({ ...prevState, lcategories: uniqueLcategories }));
         } catch (error) {
-            console.error('Error fetching lcategories', error);
+            console.error('Error fetching food lcategories', error);
         }
     };
 
-    const fetchScategories = async (selectedLcategory) => {
-        try {
-            const response = await axios.post('/food/_search', {
-                query: {
-                    bool: { must: [{ match: { lcategory: selectedLcategory } }] }
-                },
-                size: 4000
-            });
 
+
+
+
+    const fetchFoodScategories = async (selectedLcategory) => {
+        try {
+            const response = await axios.get('/food/_search', { params: { q: `lcategory:"${selectedLcategory}"`, size: 4000 } });
             const hits = response.data.hits.hits;
             const uniqueScategories = [...new Set(hits.map(hit => hit._source.scategory))];
-            setScategories(uniqueScategories);
+            console.log('푸드에서 고른 것:', uniqueScategories);
+            setCategories(prevState => ({ ...prevState, scategories: uniqueScategories }));
         } catch (error) {
-            console.error('Error fetching scategories', error);
+            console.error('Error fetching food scategories', error);
         }
     };
 
     const fetchRecipeLcategories = async () => {
         try {
             const response = await axios.post('/recipe/_search', {
-                query: { match_all: {} },
-                size: 7000
+                size: 0,
+                aggs: {
+                    unique_lcategories: {
+                        terms: {
+                            script: {
+                                source: "doc['lcategory'].value",
+                                lang: "painless"
+                            },
+                            size: 100
+                        }
+                    }
+                }
             });
 
-            const hits = response.data.hits.hits;
-            const uniqueLcategories = [...new Set(hits.map(hit => hit._source.lcategory))];
-            setLcategories(uniqueLcategories);
+            const buckets = response.data.aggregations.unique_lcategories.buckets;
+            const uniqueLcategories = buckets.map(bucket => bucket.key);
+            setCategories(prevState => ({ ...prevState, lcategories: uniqueLcategories }));
         } catch (error) {
             console.error('Error fetching recipe lcategories', error);
         }
     };
 
+    const fetchRecipeScategories = async (selectedLcategory) => {
+        try {
+            const response = await axios.get('/recipe/_search', { params: { q: `lcategory:"${selectedLcategory}"`, size: 1000 } });
+            const hits = response.data.hits.hits;
+            const uniqueScategories = [...new Set(hits.map(hit => hit._source.scategory))];
+            console.log('레시피에서 고른 것:', uniqueScategories);
+            setCategories(prevState => ({ ...prevState, scategories: uniqueScategories }));
+        } catch (error) {
+            console.error('Error fetching recipe scategories', error);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setForm(prevState => ({ ...prevState, [name]: value }));
+    };
+
     const handleProductTypeChange = (e) => {
         const value = e.target.value;
-        setProductType(value);
-        setShowLcategories(true);
-        setShowScategories(false);
+        setForm(prevState => ({
+            ...prevState,
+            productType: value,
+            lcategory: '',
+            scategory: ''
+        }));
+
+        setCategories({
+            lcategories: [],
+            scategories: []
+        });
+
+        setShowCategories({
+            showLcategories: true,
+            showScategories: false
+        });
     };
 
     const handleLcategoryChange = (e) => {
         const value = e.target.value;
-        setLcategory(value);
+        setForm(prevState => ({ ...prevState, lcategory: value }));
 
-        fetchScategories(value);
-        setShowScategories(true);
+        if (form.productType === PRODUCT_TYPES.PROCESSED) {
+            fetchRecipeScategories(value);
+        } else if (form.productType === PRODUCT_TYPES.RAW) {
+            fetchFoodScategories(value);
+        }
+
+        setShowCategories(prevState => ({ ...prevState, showScategories: true }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const product = { barcode, productName, expiryDate, count, productType, lcategory, scategory };
+        const product = { ...form };
 
         try {
-            const response = await axios.post('http://localhost:8080/api/barcodes', product);
+            const response = await axios.post('/api/barcodes', product);
             console.log('Product saved successfully:', response.data);
             navigate('/barlist');
         } catch (error) {
@@ -105,47 +170,98 @@ const UserDataInput = () => {
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>바코드:</label>
-                    <input type="text" value={barcode} onChange={(e) => setBarcode(e.target.value)} placeholder="바코드정보가 없다면 입력하지마셈"/>
+                    <input
+                        type="text"
+                        name="barcode"
+                        value={form.barcode}
+                        onChange={handleInputChange}
+                        placeholder="바코드정보가 없다면 입력하지마셈"
+                    />
                 </div>
                 <div>
                     <label>제품명:</label>
-                    <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} required/>
+                    <input
+                        type="text"
+                        name="productName"
+                        value={form.productName}
+                        onChange={handleInputChange}
+                        required
+                    />
                 </div>
                 <div>
                     <label>유통기한:</label>
-                    <input type="date" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} required/>
+                    <input
+                        type="date"
+                        name="expiryDate"
+                        value={form.expiryDate}
+                        onChange={handleInputChange}
+                        required
+                    />
                 </div>
                 <div>
                     <label>수량 :</label>
-                    <input type="text" value={count} onChange={(e) => setCount(e.target.value)} required/>
+                    <input
+                        type="text"
+                        name="count"
+                        value={form.count}
+                        onChange={handleInputChange}
+                        required
+                    />
                 </div>
                 <div>
                     <label>식품 유형:</label>
-                    <select onChange={handleProductTypeChange} value={productType}>
+                    <select name="productType" onChange={handleProductTypeChange} value={form.productType}>
                         <option value="" disabled>========</option>
-                        <option value="가공식품">가공식품</option>
-                        <option value="원자재성 식품">원자재성 식품</option>
+                        <option value={PRODUCT_TYPES.PROCESSED}>가공식품</option>
+                        <option value={PRODUCT_TYPES.RAW}>원자재성 식품</option>
                     </select>
                 </div>
-                {showLcategories && (
+                {form.productType === PRODUCT_TYPES.PROCESSED && showCategories.showLcategories && (
                     <div>
-                        <label>종 류:</label>
-                        <select name="lcategory" value={lcategory} onChange={handleLcategoryChange}>
-                            {lcategories.map((category, index) => (
+                        <label>가공식품 종류:</label>
+                        <select name="lcategory" value={form.lcategory} onChange={handleLcategoryChange}>
+                            <option value="" disabled>선택하세요</option>
+                            {categories.lcategories.map((category, index) => (
                                 <option key={index} value={category}>{category}</option>
                             ))}
                         </select>
                     </div>
                 )}
-                {showScategories && (
+                {form.productType === PRODUCT_TYPES.RAW && showCategories.showLcategories && (
                     <div>
-                        <label>세부 종류:</label>
-                        <select name="scategory" value={scategory} onChange={(e) => setScategory(e.target.value)}>
-                            {scategories.map((category, index) => (
+                        <label>원자재성 식품 종류:</label>
+                        <select name="lcategory" value={form.lcategory} onChange={handleLcategoryChange}>
+                            <option value="" disabled>선택하세요</option>
+                            {categories.lcategories.map((category, index) => (
                                 <option key={index} value={category}>{category}</option>
                             ))}
                         </select>
                     </div>
+                )}
+                {form.productType === PRODUCT_TYPES.PROCESSED && showCategories.showScategories && categories.scategories.length > 0 && (
+                    <div>
+                        <label>가공식품 세부 종류:</label>
+                        <select name="scategory" value={form.scategory} onChange={handleInputChange}>
+                            <option value="" disabled>선택하세요</option>
+                            {categories.scategories.map((category, index) => (
+                                <option key={index} value={category}>{category}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+                {form.productType === PRODUCT_TYPES.RAW && showCategories.showScategories && categories.scategories.length > 0 && (
+                    <div>
+                        <label>원자재성 식품 세부 종류:</label>
+                        <select name="scategory" value={form.scategory} onChange={handleInputChange}>
+                            <option value="" disabled>선택하세요</option>
+                            {categories.scategories.map((category, index) => (
+                                <option key={index} value={category}>{category}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+                {showCategories.showScategories && categories.scategories.length === 0 && (
+                    <div>세부 종류가 없습니다.</div>
                 )}
                 <button type="submit">상품 등록</button>
             </form>

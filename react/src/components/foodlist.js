@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const Foodlist = () => {
     const [savedBarcodes, setSavedBarcodes] = useState([]);
-    const navigate = useNavigate();
+
 
     const fetchSavedBarcodes = async () => {
         try {
@@ -21,9 +21,8 @@ const Foodlist = () => {
 
     const deleteBarcode = async (productName) => {
         try {
-            await axios.delete(`http://localhost:8080/api/barcodes/${productName}`);
+            await axios.delete(`/api/barcodes/${productName}`);
             fetchSavedBarcodes();
-            console.log(productName);
             alert('상품 삭제함');
         } catch (error) {
             console.error('Error deleting barcode', error);
@@ -56,7 +55,7 @@ const Foodlist = () => {
                         >
                             삭제
                         </button>
-                        <Link to={`/detailfood/${barcode.productName}/${barcode.scategory}`}>
+                        <Link to={`/detailfood/${barcode.productName}/${barcode.scategory}/${barcode.productType}`}>
                             <button
                                 style={{ cursor: 'pointer', color: 'gray' }}
                             >

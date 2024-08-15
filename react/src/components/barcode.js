@@ -1,6 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
+
+const PRODUCT_TYPES = {
+    PROCESSED: '가공식품',
+    RAW: '원자재성 식품'
+};
 
 const Barcode = () => {
     const videoRef = useRef(null);
@@ -22,23 +27,21 @@ const Barcode = () => {
         lcategory: '',
         scategory: ''
     });
-    const [lcategories, setLcategories] = useState([]); // lcategory 값을 저장할 상태 변수
-    const [scategories, setScategories] = useState([]); // scategory 값을 저장할 상태 변수
-    const [showLcategories, setShowLcategories] = useState(false); // 두 번째 select 요소 표시 여부
-    const [showScategories, setShowScategories] = useState(false); // 세 번째 select 요소 표시 여부
+    const [categories, setCategories] = useState({
+        lcategories: [],
+        scategories: []
+    });
+
+    const [showLcategories, setShowLcategories] = useState(false);
+    const [showScategories, setShowScategories] = useState(false);
 
     useEffect(() => {
         const initCamera = async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({video: true});
-                if (stream && videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                }
-            } catch (error) {
-                console.error('Error accessing the camera', error);
+            const stream = await navigator.mediaDevices.getUserMedia({video: true});
+            if (stream && videoRef.current) {
+                videoRef.current.srcObject = stream;
             }
         };
-
         initCamera();
     }, []);
 
@@ -47,6 +50,14 @@ const Barcode = () => {
             fetchFoodSafetyInfo(concatenatedText);
         }
     }, [concatenatedText]);
+
+    useEffect(() => {
+        if (additionalInfo.productType === PRODUCT_TYPES.PROCESSED) {
+            fetchRecipeLcategories();
+        } else if (additionalInfo.productType === PRODUCT_TYPES.RAW) {
+            fetchFoodLcategories();
+        }
+    }, [additionalInfo.productType]);
 
     const captureImage = () => {
         const video = videoRef.current;
@@ -66,48 +77,36 @@ const Barcode = () => {
     const recognizeText = async () => {
         const image = captureImage();
         if (!image) return;
-
-        const apiUrl = '/api/custom/v1/32907/69a8f4b90ed9801300e661448e839445d3f21bc6dacddc5bceac7b1e9f1ac92b/general';
+        const apiUrl = '/ocr/custom/v1/32907/69a8f4b90ed9801300e661448e839445d3f21bc6dacddc5bceac7b1e9f1ac92b/general';
         const secretKey = 'R3JMT0JmY05sTGtaWkVvdHVsaHNzSHhWS1VzTVJqd0Y=';
-
-        try {
-            const response = await axios.post(
-                apiUrl,
-                {
-                    images: [
-                        {
-                            format: 'png',
-                            name: 'image',
-                            data: image.split(',')[1],
-                        },
-                    ],
-                    requestId: 'string',
-                    version: 'V2',
-                    timestamp: Date.now(),
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-OCR-SECRET': secretKey,
+        const response = await axios.post(
+            apiUrl,
+            {
+                images: [
+                    {
+                        format: 'png',
+                        name: 'image',
+                        data: image.split(',')[1],
                     },
-                }
-            );
-            if (response.data.images.length === 0 || response.data.images[0].fields.length === 0) {
-                alert('텍스트를 인식하지 못했습니다. 다시 시도해 주세요.');
-                return;
+                ],
+                requestId: 'string',
+                version: 'V2',
+                timestamp: Date.now(),
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-OCR-SECRET': secretKey,
+                },
             }
-            setOcrResult(response.data);
-            extractInferTexts(response.data);
-        } catch (error) {
-            console.error('Error recognizing text', error);
-            if (error.response) {
-                console.error('Error response:', error.response.data);
-            } else if (error.request) {
-                console.error('Error request:', error.request);
-            } else {
-                console.error('General error:', error.message);
-            }
+        );
+        if (response.data.images.length === 0 || response.data.images[0].fields.length === 0) {
+            alert('텍스트를 인식하지 못했습니다. 다시 시도해 주세요.');
+            return;
         }
+        setOcrResult(response.data);
+        extractInferTexts(response.data);
+
     };
 
     const extractInferTexts = (ocrData) => {
@@ -136,29 +135,27 @@ const Barcode = () => {
         const apiKey = '3369ab4c48b84f35a46c';
         const apiUrl = `https://openapi.foodsafetykorea.go.kr/api/${apiKey}/C005/json/1/5/BAR_CD=${barcode}`;
 
-        try {
-            const response = await axios.get(apiUrl);
-            setFoodSafetyInfo(response.data);
-            if (response.data.C005.total_count !== '0') {
-                const product = response.data.C005.row[0];
-                setAdditionalInfo({
-                    productName: product.PRDLST_NM,
-                    expiryDate: product.POG_DAYCNT,
-                    companyName: product.BSSH_NM,
-                    address: product.SITE_ADDR,
-                    productType: product.PRDLST_DCNM,
-                    permissionDate: product.PRMS_DT,
-                    count: '',
-                    lcategory: '' // 추가된 상태 초기화
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching food safety info', error);
+
+        const response = await axios.get(apiUrl);
+        setFoodSafetyInfo(response.data);
+        if (response.data.C005.total_count !== '0') {
+            const product = response.data.C005.row[0];
+            setAdditionalInfo({
+                productName: product.PRDLST_NM,
+                expiryDate: product.POG_DAYCNT,
+                companyName: product.BSSH_NM,
+                address: product.SITE_ADDR,
+                productType: product.PRDLST_DCNM,
+                permissionDate: product.PRMS_DT,
+                count: '',
+                lcategory: '' // 추가된 상태 초기화
+            });
         }
-    };
+    }
+
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setAdditionalInfo((prevInfo) => ({
             ...prevInfo,
             [name]: value
@@ -178,103 +175,120 @@ const Barcode = () => {
             scategory: additionalInfo.scategory // scategory 추가
         };
 
-        try {
-            const response = await axios.post('http://localhost:8080/api/barcodes', product);
-            console.log('Barcode saved successfully:', response.data);
-            alert("저장이 되었습니다.");
-            window.location.reload();
-        } catch (error) {
-            console.error('Error saving barcode to DB', error);
-        }
+
+        const response = await axios.post('/api/barcodes', product);
+        console.log('Barcode saved successfully:', response.data);
+        alert("저장이 되었습니다.");
+        window.location.reload();
+
     };
 
-    const fetchLcategories = async () => {
+    const fetchFoodLcategories = async () => {
         try {
-            const username = 'elastic';
-            const password = 'finalproject';
-            const token = btoa(`${username}:${password}`);
-
             const response = await axios.post('/food/_search', {
-                query: {
-                    match_all: {}
-                },
-                size: 4000
-            }, {
-                headers: {
-                    'Authorization': `Basic ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const hits = response.data.hits.hits;
-            const uniqueLcategories = [...new Set(hits.map(hit => hit._source.lcategory))];
-            setLcategories(uniqueLcategories);
-        } catch (error) {
-            console.error('Error fetching lcategories', error);
-        }
-    };
-
-    const fetchScategories = async (selectedLcategory) => {
-        try {
-            const username = 'elastic';
-            const password = 'finalproject';
-            const token = btoa(`${username}:${password}`);
-
-            const response = await axios.post('/food/_search', {
-                query: {
-                    bool: {
-                        must: [
-                            { match: { lcategory: selectedLcategory } }
-                        ]
+                size: 0,
+                aggs: {
+                    unique_lcategories: {
+                        terms: {
+                            field: "lcategory.keyword",
+                            size: 1000
+                        }
                     }
-                },
-                size: 4000
-            }, {
-                headers: {
-                    'Authorization': `Basic ${token}`,
-                    'Content-Type': 'application/json'
                 }
             });
 
+            const buckets = response.data.aggregations.unique_lcategories.buckets;
+            const uniqueLcategories = buckets.map(bucket => bucket.key);
+            setCategories(prevState => ({ ...prevState, lcategories: uniqueLcategories }));
+        } catch (error) {
+            console.error('Error fetching food lcategories', error);
+        }
+    };
+
+    const fetchFoodScategories = async (selectedLcategory) => {
+        try {
+            const response = await axios.get('/food/_search', { params: { q: `lcategory:"${selectedLcategory}"`, size: 4000 } });
             const hits = response.data.hits.hits;
             const uniqueScategories = [...new Set(hits.map(hit => hit._source.scategory))];
-            setScategories(uniqueScategories);
+            console.log('푸드에서 고른 것:', uniqueScategories);
+            setCategories(prevState => ({ ...prevState, scategories: uniqueScategories }));
         } catch (error) {
-            console.error('Error fetching scategories', error);
+            console.error('Error fetching food scategories', error);
         }
     };
 
-    const handleProductTypeChangel = (e) => {
+    const fetchRecipeLcategories = async () => {
+        try {
+            const response = await axios.post('/recipe/_search', {
+                size: 0,
+                aggs: {
+                    unique_lcategories: {
+                        terms: {
+                            script: {
+                                source: "doc['lcategory'].value",
+                                lang: "painless"
+                            },
+                            size: 100
+                        }
+                    }
+                }
+            });
+
+            const buckets = response.data.aggregations.unique_lcategories.buckets;
+            const uniqueLcategories = buckets.map(bucket => bucket.key);
+            setCategories(prevState => ({ ...prevState, lcategories: uniqueLcategories }));
+        } catch (error) {
+            console.error('Error fetching recipe lcategories', error);
+        }
+    };
+
+    const fetchRecipeMcategories = async (selectedLcategory) => {
+        try {
+            const response = await axios.get('/recipe/_search', { params: { q: `lcategory:"${selectedLcategory}"`, size: 1000 } });
+            const hits = response.data.hits.hits;
+            const uniqueScategories = [...new Set(hits.map(hit => hit._source.scategory))];
+            console.log('레시피에서 고른 것:', uniqueScategories);
+            setCategories(prevState => ({ ...prevState, scategories: uniqueScategories }));
+        } catch (error) {
+            console.error('Error fetching recipe scategories', error);
+        }
+    };
+
+    const handleProductTypeChange = (e) => {
         const value = e.target.value;
-        setAdditionalInfo((prevInfo) => ({
-            ...prevInfo,
-            productType: value
+        setAdditionalInfo(prevState => ({
+            ...prevState,
+            productType: value,
+            lcategory: '',
+            scategory: ''
         }));
 
-        if (value === '원자재성 식품') {
-            fetchLcategories();
-            setShowLcategories(true);
-        } else {
-            setShowLcategories(false);
-            setShowScategories(false); // lcategories를 선택하지 않으면 scategories도 숨김
-        }
+        setCategories({
+            lcategories: [],
+            scategories: []
+        });
+
+        setShowLcategories(true);
+        setShowScategories(false);
     };
 
     const handleLcategoryChange = (e) => {
         const value = e.target.value;
-        setAdditionalInfo((prevInfo) => ({
-            ...prevInfo,
-            lcategory: value
-        }));
+        setAdditionalInfo(prevState => ({...prevState, lcategory: value}));
 
-        fetchScategories(value);
+        if (additionalInfo.productType === PRODUCT_TYPES.PROCESSED) {
+            fetchRecipeMcategories(value);
+        } else if (additionalInfo.productType === PRODUCT_TYPES.RAW) {
+            fetchFoodScategories(value);
+        }
+
         setShowScategories(true);
     };
 
     return (
-        <div className="App">
-            {/* 비디오 및 캔버스 요소 */}
-            <video ref={videoRef} autoPlay/>
+        <div>
+            <h2>Barcode Scanner</h2>
+            <video ref={videoRef} autoPlay playsInline/>
             <canvas ref={canvasRef} style={{display: 'none'}}/>
             <button onClick={recognizeText}>바코드 인식</button>
             <Link to="/barlist">
@@ -285,7 +299,6 @@ const Barcode = () => {
                 <button>상품등록</button>
             </Link>
             <div>
-                {/* 캡처된 이미지 및 OCR 결과 표시 */}
                 {capturedImage && (
                     <div style={{marginRight: '20px'}}>
                         <h3>찍은 사진 임</h3>
@@ -303,7 +316,6 @@ const Barcode = () => {
                     </div>
                 )}
 
-                {/* 바코드 및 식품 안전 정보 표시 */}
                 {concatenatedText && (
                     <div>
                         <h3>인식된 바코드 결과는 ? :</h3>
@@ -355,41 +367,40 @@ const Barcode = () => {
                                     <label>
                                         <br/><br/>
                                         식품 유형:
-                                        <select onChange={handleProductTypeChangel} value={additionalInfo.productType}>
+                                        <select name="productType" onChange={handleProductTypeChange}
+                                                value={additionalInfo.productType}>
                                             <option value="" disabled>========</option>
-                                            <option value="가공식품">가공식품</option>
-                                            <option value="원자재성 식품">원자재성 식품</option>
+                                            <option value={PRODUCT_TYPES.PROCESSED}>가공식품</option>
+                                            <option value={PRODUCT_TYPES.RAW}>원자재성 식품</option>
                                         </select>
                                     </label>
 
                                     {showLcategories && (
-                                        <label>
-                                            종 류:
-                                            <select
-                                                name="lcategory"
-                                                value={additionalInfo.lcategory}
-                                                onChange={handleLcategoryChange}
-                                            >
-                                                {lcategories.map((category, index) => (
+                                        <div>
+                                            <label>종 류:</label>
+                                            <select name="lcategory" value={additionalInfo.lcategory}
+                                                    onChange={handleLcategoryChange}>
+                                                <option value="" disabled>선택하세요</option>
+                                                {categories.lcategories.map((category, index) => (
                                                     <option key={index} value={category}>{category}</option>
                                                 ))}
                                             </select>
-                                        </label>
+                                        </div>
                                     )}
-
-                                    {showScategories && (
-                                        <label>
-                                            세부 종류:
-                                            <select
-                                                name="scategory"
-                                                value={additionalInfo.scategory}
-                                                onChange={handleInputChange}
-                                            >
-                                                {scategories.map((category, index) => (
+                                    {showScategories && categories.scategories.length > 0 && (
+                                        <div>
+                                            <label>세부 종류:</label>
+                                            <select name="scategory" value={additionalInfo.scategory}
+                                                    onChange={handleInputChange}>
+                                                <option value="" disabled>선택하세요</option>
+                                                {categories.scategories.map((category, index) => (
                                                     <option key={index} value={category}>{category}</option>
                                                 ))}
                                             </select>
-                                        </label>
+                                        </div>
+                                    )}
+                                    {showScategories && categories.scategories.length === 0 && (
+                                        <div>세부 종류가 없습니다.</div>
                                     )}
 
                                     <button type="button" onClick={saveBarcodeToDB}>저장</button>
