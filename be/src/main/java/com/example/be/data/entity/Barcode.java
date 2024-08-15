@@ -7,13 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Property;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 
-@Node
+@Node("food")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,8 +22,9 @@ import java.time.temporal.ChronoUnit;
 public class Barcode {
 
     @Id
-    private String barcode;         //바코드
     private String productName;     //제품명
+
+    private String barcode;         //바코드
     private String expiryDate;      //유통기한
     private String count;           //수량
     private String productType;     //식품 유형

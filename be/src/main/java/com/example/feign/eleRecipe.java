@@ -1,11 +1,16 @@
-package com.example.be.repository;
+package com.example.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "recipeApi", url = "http://101.79.10.196:9200")
+@FeignClient(name = "recipeApi", url = "http://elasticsearch.icebuckwheat.kro.kr:9200", configuration = FeignConfig.class)
 public interface eleRecipe {
-    @GetMapping("/api/recipe-endpoint")
-    String getData(@RequestParam String param);
+    @PostMapping("/recipe/_search")
+    String getRecipeData(@RequestParam("q") String food);
+
+    @PostMapping(value = "/recipe/_search" , consumes = "application/json")
+    String searchRecipe(@RequestBody String query);
 }
