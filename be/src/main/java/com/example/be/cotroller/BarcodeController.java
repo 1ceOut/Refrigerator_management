@@ -19,19 +19,13 @@ import java.util.List;
 public class BarcodeController {
 
     private final BarcodeService barcodeService;
-    private static final Logger logger = LoggerFactory.getLogger(BarcodeController.class); // 로거 설정
 
 
     //상품 추가
     @PostMapping("/barcodes")
     public ResponseEntity<Barcode> saveBarcode(@RequestBody @Validated Barcode barcode) {
-        try {
             Barcode savedBarcode = barcodeService.saveBarcode(barcode);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedBarcode); // 저장 성공 시 201 Created 응답
-        } catch (Exception e) {
-            logger.error("Error occurred while saving barcode", e); // 오류를 로깅합니다.
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 응답 본문을 null로 설정
-        }
     }
 
     //상품 조회
@@ -47,4 +41,18 @@ public class BarcodeController {
         barcodeService.deleteByProductName(productName);
         return ResponseEntity.noContent().build(); // HTTP 204 상태 코드
     }
+
+
+    @GetMapping("/barcodeapi")
+    public String getDataFromBarcode(@RequestParam String param){
+        return barcodeService.getDataFromBarcode(param);
+    }
+
+
+    @GetMapping("/foodapi")
+    public String getFoodData(@RequestParam("param") String param){
+        return barcodeService.getFoodData("mcategory:" + param);
+    }
+
+
 }

@@ -5,6 +5,8 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface BarcodeRepository extends Neo4jRepository<Barcode, String> {
 
@@ -17,7 +19,6 @@ public interface BarcodeRepository extends Neo4jRepository<Barcode, String> {
         void deleteByBarcode(String productName);
      */
 
-
-    @Query("MATCH (b:Barcode {productName: $productName}) DELETE b")
+    @Query("MATCH (b:food {productName: $productName}) DELETE b")
     void deleteByProductName(String productName);
 }
