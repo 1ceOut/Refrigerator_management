@@ -13,7 +13,7 @@ const RouterMain = () => {
                 <Route path="/" element={<Barcode />} />
                 <Route path="/barlist" element={<FoodList />} />
                 <Route path="/userinput" element={<UserDataInput />} />
-                <Route path="/detailfood/:productName/:scategory" element={<DetailFood />} />
+                <Route path="/detailfood/:productName/:scategory/:productType" element={<DetailFood />} />
             </Routes>
         </div>
     );
