@@ -1,0 +1,25 @@
+spring:
+  neo4j:
+    uri: neo4j://223.130.157.76:7687
+    authentication:
+      username: neo4j
+      password: Pa$$word
+
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          neo4j: DEBUG # 내부적으로 돌아가는 native cyperQuery를 로그로 찍어준다.
+server:
+  port: 9000 # 포트 번호를 9000으로 변경
+
+ncp:
+  ocr:
+    api:
+      url: https://wa6solbk9h.apigw.ntruss.com/custom/v1/33748/060b6768478fd4de2358e3c4f2a2df787fab6f1b1394026fb96807b389801a0f/general
+    secret:
+      key: RWZsbFVuYmZzdFJDTHVOQXJSU0VMZkdHeEFBU3NMQmk=
+
+
