@@ -34,8 +34,12 @@ public interface BarcodeRepository extends Neo4jRepository<Barcode, String> {
         void deleteByBarcode(String productName);
      */
 
-    @Query("MATCH (b:food {productName: $productName}) DELETE b")
-    void deleteByProductName(String productName);
+    @Query("MATCH (b:food {productName: $productName, id: $id})" +
+            "DETACH DELETE b")
+    void deleteByProductName(String productName,String id);
+
+    @Query("MATCH (f:food {productName: $productName, id: $id}) SET f.count = $count RETURN f")
+    void updateByProductNave(String productName,String id,String count);
 
     //조회문
 

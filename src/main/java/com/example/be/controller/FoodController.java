@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/food")
 @CrossOrigin(origins = "http://localhost:8080") // CORS 설정 (필요에 따라 조정)
 public class FoodController {
 
@@ -17,7 +17,7 @@ public class FoodController {
         this.foodService = foodService;
     }
 
-    @PostMapping("/food/detail") // POST 메소드로 변경
+    @PostMapping("/food/detail")
     public ResponseEntity<String> getFoodData(@RequestBody Map<String, String> requestBody) {
         String mcategory = requestBody.get("mcategory");
         String scategory = requestBody.get("scategory");

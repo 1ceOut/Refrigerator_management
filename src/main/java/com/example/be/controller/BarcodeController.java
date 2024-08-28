@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 @RestController
 @CrossOrigin(origins = "http://localhost:8080") // CORS 설정 (필요에 따라 조정)
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/food")
 public class BarcodeController {
 
     private final BarcodeService barcodeService;
@@ -52,12 +52,30 @@ public class BarcodeController {
         return barcodeService.listBarcodes();
     }
 
+
+    @PostMapping("/barcodes/update/{productName}/{id}/{count}")
+    public ResponseEntity<Void> updateBarcode(
+            @PathVariable String productName,
+            @PathVariable String id,
+            @PathVariable String count) {
+        try {
+            barcodeService.updateByProductName(productName, id, count);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            // 예외 처리 및 적절한 HTTP 응답 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     // 상품 삭제
-    @DeleteMapping("/barcodes/{productName}")
-    public ResponseEntity<Void> deleteByProductName(@PathVariable String productName) {
-        barcodeService.deleteByProductName(productName);
+    @DeleteMapping("/barcodes/{productName}/{id}")
+    public ResponseEntity<Void> deleteByProductName(@PathVariable String productName,@PathVariable String id) {
+        System.out.println("Deleting productName: " + productName + " with id: " + id);
+        barcodeService.deleteByProductName(productName,id);
         return ResponseEntity.noContent().build(); // HTTP 204 상태 코드
     }
+
+
 
     @PostMapping("/ocr")
     public ResponseEntity<String> recognizeText(@RequestBody OcrRequest request) {

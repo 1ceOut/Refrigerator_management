@@ -117,8 +117,17 @@ public class BarcodeService {
     public List<Barcode> listBarcodes(){
         return barcodeRepository.findAll();
     }
-    public void deleteByProductName(String productName) {
-        barcodeRepository.deleteByProductName(productName);
+
+    public void updateByProductName(String productName,String id,String count){
+        barcodeRepository.updateByProductNave(productName, id, count);
+    }
+
+
+
+
+
+    public void deleteByProductName(String productName,String id) {
+        barcodeRepository.deleteByProductName(productName,id);
     }
 
 

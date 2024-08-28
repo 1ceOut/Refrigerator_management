@@ -46,6 +46,7 @@ public class RefrigeRatorService {
         // 새로운 냉장고 생성 및 저장
         RefrigeRator refrigerator = RefrigeRator.builder()
                 .refrigeratorName(refrigeratorName)
+                .id(userId)//냉장고 최초 생성시 해당 user가 master권한을 가지고 초대코드로 받는새끼는 해당값 없음 // master 권한을 가진 새끼
                 .refrigerator_id(UUID.randomUUID().toString())
                 .build();
 
@@ -60,8 +61,8 @@ public class RefrigeRatorService {
 
 
     //냉장고 삭제
-    public void deleteByrefrigerator_name(String refrigerator_name) {
-        refrigeRatorRepository.deleteByName(refrigerator_name);
+    public void deleteByrefrigerator_id(String refrigerator_id) {
+        refrigeRatorRepository.deleteById(refrigerator_id);
     }
     //모든 냉장고 조회
     public List<RefrigeRator> findAll() {
@@ -85,6 +86,25 @@ public class RefrigeRatorService {
         }
 
     }
+    public List<RefrigeRator> getMasterList(String id) {
+        List<RefrigeRator> refrigerators = refrigeRatorRepository.findByIdAndRefrigeratorId(id);
+        if (refrigerators.isEmpty()) {
+            throw new RuntimeException("Refrigerators not found for id: " + id);
+        }
+        return refrigerators;
+    }
+
+    public void updateRefrigeratorNames(String userId, List<RefrigeRator> data) {
+        for (RefrigeRator refri : data) {
+            // Update the refrigerator name based on the refrigerator_id and userId
+            refrigeRatorRepository.updateRefrigeratorName(userId, refri.getRefrigerator_id(), refri.getRefrigeratorName());
+        }
+    }
+
+
+
+
+
 //    public List<RefrigeRator> findUserByRefrigerators(String userId){
 //        // userid로 user 찾음
 //

@@ -25,4 +25,5 @@ public class RefrigeRator {
 
     private String refrigeratorName;
 
+    private String id; // userid
 }
