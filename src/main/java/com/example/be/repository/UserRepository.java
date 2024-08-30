@@ -14,7 +14,8 @@ public interface UserRepository extends Neo4jRepository<User,String> {
     @Query("MATCH (u:user {id: $userId}) RETURN u")
     Optional<User> findByUserID(String userId);
 
-
+    @Query("MATCH (u:user) WHERE u.id IN $userIds RETURN u")
+    List<User> findByUserIds(List<String> userIds);
 
 
     @Query("MATCH (u:user {id: $userId})-[:OWNS]->(r:RefrigeRator) RETURN r.refrigerator_id AS refrigerator_id, r.refrigeratorName AS refrigeratorName")
