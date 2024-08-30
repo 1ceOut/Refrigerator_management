@@ -10,10 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class RefrigeRatorService {
@@ -106,6 +104,53 @@ public class RefrigeRatorService {
 
     public List<InviteRefrigeratorRequset> inviteRefrigerator(InviteRefrigeratorRequset request) {
         return refrigeRatorRepository.inviteRefrigerator(request.getUserId(), request.getRefrigeratorId());
+    }
+
+
+
+//    public List<User> inviteUserList(String userId, String refrigerator_id) {
+//        // 냉장고와 관련된 사용자 ID들을 가져옵니다.
+//        List<String> userIds = refrigeRatorRepository.inviteUserList(userId, refrigerator_id);
+//
+//        // 가져온 사용자 ID 리스트가 비어 있지 않은지 확인합니다.
+//        if (userIds != null && !userIds.isEmpty()) {
+//            String user = userIds.get(0);
+//            System.out.println(user);
+//
+//            return userRepository.findByUser(user);
+//        }
+//
+//        // 사용자 ID 리스트가 비어 있을 경우 빈 리스트를 반환합니다.
+//        return Collections.emptyList();
+//    }
+
+    public List<User> inviteUserList(String userId, String refrigerator_id) {
+        // 냉장고와 관련된 사용자 ID들을 JSON 배열 형식의 문자열로 가져옵니다.
+        String userIdsJson = refrigeRatorRepository.inviteUserList(userId, refrigerator_id).toString();
+
+        // 문자열에서 대괄호와 공백을 제거하고 사용자 ID를 추출합니다.
+        List<String> userIds = extractUserIds(userIdsJson);
+        System.out.println("User IDs: " + userIds);
+
+        // 가져온 사용자 ID 리스트가 비어 있지 않은지 확인합니다.
+        if (!userIds.isEmpty()) {
+            // 사용자 ID 리스트를 사용하여 모든 사용자 객체를 조회합니다.
+            return userRepository.findByUserIds(userIds);
+        }
+
+        // 사용자 ID 리스트가 비어 있을 경우 빈 리스트를 반환합니다.
+        return Collections.emptyList();
+    }
+
+    private List<String> extractUserIds(String userIdsJson) {
+        if (userIdsJson != null && !userIdsJson.isEmpty()) {
+            // 대괄호와 공백을 제거하고 사용자 ID 리스트로 변환
+            String cleanedUserIds = userIdsJson.replaceAll("[\\[\\]\"\\s]", " ").trim();
+            return Arrays.stream(cleanedUserIds.split(","))
+                    .map(String::trim)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
 

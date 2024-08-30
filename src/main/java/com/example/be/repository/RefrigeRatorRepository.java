@@ -47,6 +47,9 @@ public interface RefrigeRatorRepository extends Neo4jRepository<RefrigeRator,Str
 
 
 
+    @Query("MATCH (r:RefrigeRator {refrigerator_id: $refrigerator_id}) MATCH (u:user)-[:OWNS]->(r) WHERE u.id <> $userId RETURN u.id")
+    List<String> inviteUserList(String userId,String refrigerator_id);
+
 
     //조회
     Optional<RefrigeRator> findByRefrigeratorName(String refrigeratorName);

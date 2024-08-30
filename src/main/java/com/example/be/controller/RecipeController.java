@@ -8,7 +8,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/food")
-@CrossOrigin(origins = "http://localhost:8080") // CORS 설정 (필요에 따라 조정)
+@CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true") // CORS 설정 (필요에 따라 조정)
 public class RecipeController {
 
     private final RecipeService recipeService;

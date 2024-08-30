@@ -21,6 +21,12 @@ public class User {
     @Id
     private String id;
 
+    private String name;
+
+    private String photo;
+
+    private String email;
+
     // "OWNS"라는 유형의 관계를 사용하여 User와 RefrigeRator 간의 연결을 정의합니다.
     @Relationship(type = "OWNS", direction = Relationship.Direction.OUTGOING)
     private List<RefrigeRator> refrigerators;
