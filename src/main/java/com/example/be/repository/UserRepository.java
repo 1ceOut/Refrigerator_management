@@ -21,4 +21,8 @@ public interface UserRepository extends Neo4jRepository<User,String> {
     @Query("MATCH (u:user {id: $userId})-[:OWNS]->(r:RefrigeRator) RETURN r.refrigerator_id AS refrigerator_id, r.refrigeratorName AS refrigeratorName")
     List<RefrigeRator> findRefrigeratorsByUserId(String userId);
 
+
+    @Query("MATCH (u:user)-[r:OWNS]->(rfr:RefrigeRator {refrigerator_id: $refrigeratorId}) WHERE u.id IN $ids DELETE r")
+    void deleteByIdInAndRefrigerators_RefrigeratorId(List<String> ids, String refrigeratorId);
+
 }
