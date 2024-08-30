@@ -86,7 +86,7 @@ public class BarcodeService {
 //    }
 //}
 
-
+    //추가
     @Transactional
     public Barcode saveBarcode(Barcode barcode) {
         // Save the barcode
@@ -107,25 +107,25 @@ public class BarcodeService {
     }
 
 
-
+    //조회
     public List<Barcode> listBarcodesByRefrigeratorName(String refrigeratorName) {
-
         System.out.println("냉장고이름 ?: "+refrigeratorName);
         return barcodeRepository.findFoodsByRefrigeratorName(refrigeratorName);
     }
+    public List<Barcode> findFoodsByRefrigeratorNameAndCategory(String refrigeratorName, String lcategory){
+        return barcodeRepository.findFoodsByRefrigeratorNameAndCategory(refrigeratorName,lcategory);
+    }
 
+    //전체 상품 조회
     public List<Barcode> listBarcodes(){
         return barcodeRepository.findAll();
     }
 
+    //수정
     public void updateByProductName(String productName,String id,String count){
         barcodeRepository.updateByProductNave(productName, id, count);
     }
-
-
-
-
-
+    //삭제
     public void deleteByProductName(String productName,String id) {
         barcodeRepository.deleteByProductName(productName,id);
     }

@@ -1,6 +1,8 @@
 package com.example.be.controller;
 
 
+
+import com.example.be.Request.InviteRefrigeratorRequset;
 import com.example.be.Request.RefrigeRatorRequest;
 import com.example.be.Request.UpdateRequest;
 import com.example.be.data.entity.RefrigeRator;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,6 +69,11 @@ public class RefrigeRatorController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to update refrigerators.");
         }
+    }
+
+    @PostMapping("/refri/invite/user")
+    public List<InviteRefrigeratorRequset> inviteRefrigerator(@RequestBody InviteRefrigeratorRequset request) {
+        return refrigeRatorService.inviteRefrigerator(request);
     }
 
 
