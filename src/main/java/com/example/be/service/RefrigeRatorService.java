@@ -1,16 +1,17 @@
 package com.example.be.service;
 
+import com.example.be.Request.InviteRefrigeratorRequset;
 import com.example.be.data.entity.RefrigeRator;
 import com.example.be.data.entity.User;
 import com.example.be.repository.RefrigeRatorRepository;
 import com.example.be.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -88,6 +89,7 @@ public class RefrigeRatorService {
     }
     public List<RefrigeRator> getMasterList(String id) {
         List<RefrigeRator> refrigerators = refrigeRatorRepository.findByIdAndRefrigeratorId(id);
+        System.out.println("tqtqtqtqt"+refrigerators);
         if (refrigerators.isEmpty()) {
             throw new RuntimeException("Refrigerators not found for id: " + id);
         }
@@ -100,6 +102,12 @@ public class RefrigeRatorService {
             refrigeRatorRepository.updateRefrigeratorName(userId, refri.getRefrigerator_id(), refri.getRefrigeratorName());
         }
     }
+
+
+    public List<InviteRefrigeratorRequset> inviteRefrigerator(InviteRefrigeratorRequset request) {
+        return refrigeRatorRepository.inviteRefrigerator(request.getUserId(), request.getRefrigeratorId());
+    }
+
 
 
 

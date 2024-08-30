@@ -46,6 +46,17 @@ public class BarcodeController {
             return barcodeService.listBarcodes();
         }
     }
+    @GetMapping("/list/category")
+    public List<Barcode> listcategory(@RequestParam String refrigeratorName, @RequestParam String lcategory) {
+        System.out.println("refriname-==="+refrigeratorName);
+        if (refrigeratorName != null) {
+            return barcodeService.findFoodsByRefrigeratorNameAndCategory(refrigeratorName,lcategory);
+        } else {
+            return barcodeService.listBarcodes();
+        }
+    }
+
+
     //전체 상품 조회
     @GetMapping("/list/all")
     public List<Barcode> listBarcodes() {
