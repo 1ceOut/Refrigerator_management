@@ -152,6 +152,12 @@ public class RefrigeRatorService {
         }
         return Collections.emptyList();
     }
+    public String deleteInvite(List<String> userIds, String refrigeratorId) {
+        // 사용자 ID 리스트와 냉장고 ID를 기반으로 관계 삭제
+        userRepository.deleteByIdInAndRefrigerators_RefrigeratorId(userIds, refrigeratorId);
+
+        return "사용자 삭제 완료";
+    }
 
 
 

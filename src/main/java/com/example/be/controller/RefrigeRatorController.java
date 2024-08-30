@@ -20,7 +20,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/food")
-@CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true") // CORS 설정 (필요에 따라 조정)
+//@CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true") // CORS 설정 (필요에 따라 조정)
 public class RefrigeRatorController {
 
     private final RefrigeRatorService refrigeRatorService;
@@ -86,5 +86,12 @@ public class RefrigeRatorController {
         return refrigeRatorService.inviteUserList(userId,refrigerator_id);
     }
 
+    //초대코드로 냉장고 추가한 인원 삭제
+    @DeleteMapping("/refri/invite/delete")
+    public String deleteInvite(@RequestParam List<String> userId, @RequestParam("refrigerator_id") String refrigerator_id) {
 
+        System.out.println("삭제할 사용자 ID 리스트: " + userId);
+        System.out.println("냉장고 ID: " + refrigerator_id);
+        return refrigeRatorService.deleteInvite(userId, refrigerator_id);
+    }
 }
