@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true") // CORS 설정 (필요에 따라 조정)
+@CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true") // CORS 설정 (필요에 따라 조정)
 @RequiredArgsConstructor
 @RequestMapping("/api/food")
 public class BarcodeController {
@@ -117,4 +117,5 @@ public class BarcodeController {
     public String getFoodData(@RequestParam("param") String param) {
         return barcodeService.getFoodData("mcategory:" + param);
     }
+
 }

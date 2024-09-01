@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 
 
-@FeignClient(name = "ocrClient", url = "${ncp.ocr.api.url}")
+//@FeignClient(name = "ocrClient", url = "${ncp.ocr.api.url}")
+@FeignClient(name="ocrClient" , url = "${ncp.ocr.api.url}")
 public interface OcrClient {
 
     @PostMapping
