@@ -127,8 +127,8 @@ public class BarcodeService {
         return barcodeRepository.KeywordSearchFood(refrigeratorName,productName);
     }
     //전체 음식 조회
-    public List<Barcode> SearchAllFood(String productName){
-        return barcodeRepository.SearchAllFood(productName);
+    public List<Barcode> SearchAllFood(String userid,String productName){
+        return barcodeRepository.SearchAllFood(userid,productName);
     }
 
     //수정
