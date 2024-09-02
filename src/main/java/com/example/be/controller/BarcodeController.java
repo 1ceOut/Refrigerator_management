@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true") // CORS 설정 (필요에 따라 조정)
+@CrossOrigin(origins = "http://localhost:8080",allowCredentials = "true") // CORS 설정 (필요에 따라 조정)
 @RequiredArgsConstructor
 @RequestMapping("/api/food")
 public class BarcodeController {
@@ -63,7 +63,29 @@ public class BarcodeController {
         return barcodeService.listBarcodes();
     }
 
+    // 음식 검색 조회
+    @PostMapping("/keyword/search")
+    public ResponseEntity<List<Barcode>> keywordSearchFood(@RequestParam String refrigeratorName, @RequestParam String productName) {
+        List<Barcode> barcodes = barcodeService.KeywordSearchFood(refrigeratorName, productName);
+        if (barcodes.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(barcodes);
+    }
 
+    //전체 냉장고 음식 검색 조회
+    @PostMapping("/keyword/all/search")
+    public ResponseEntity<List<Barcode>> SearchAllFood(@RequestParam String productName){
+        List<Barcode> barcodes = barcodeService.SearchAllFood(productName);
+        if (barcodes.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(barcodes);
+    }
+
+
+
+    //수량 수정
     @PostMapping("/barcodes/update/{productName}/{id}/{count}")
     public ResponseEntity<Void> updateBarcode(
             @PathVariable String productName,
@@ -117,5 +139,7 @@ public class BarcodeController {
     public String getFoodData(@RequestParam("param") String param) {
         return barcodeService.getFoodData("mcategory:" + param);
     }
+
+
 
 }

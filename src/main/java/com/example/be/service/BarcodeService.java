@@ -96,12 +96,13 @@ public class BarcodeService {
         // Retrieve the product name and refrigerator name
         String productName = barcode.getProductName();
         String refrigeratorName = barcode.getRefrigeratorName(); // Ensure the Barcode object has this method
-
+        String id = barcode.getId();
         System.out.println("productName===================" + productName);
+        System.out.println("Id===================" + id);
         System.out.println("refrigeratorName===================" + refrigeratorName);
 
         // Create a relationship with the specified RefrigeRator
-        barcodeRepository.createRelationship(productName, refrigeratorName);
+        barcodeRepository.createRelationship(id, refrigeratorName);
 
         return savedBarcode;
     }
@@ -119,6 +120,15 @@ public class BarcodeService {
     //전체 상품 조회
     public List<Barcode> listBarcodes(){
         return barcodeRepository.findAll();
+    }
+
+    //냉장고 안 음식 조회
+    public List<Barcode> KeywordSearchFood(String refrigeratorName, String productName){
+        return barcodeRepository.KeywordSearchFood(refrigeratorName,productName);
+    }
+    //전체 음식 조회
+    public List<Barcode> SearchAllFood(String productName){
+        return barcodeRepository.SearchAllFood(productName);
     }
 
     //수정
