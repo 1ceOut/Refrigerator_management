@@ -30,7 +30,7 @@ public interface BarcodeRepository extends Neo4jRepository<Barcode, String> {
 
 
 //    @Query("match (f:food{productName:$productName}) return f;")
-@Query("MATCH (u:User {id: $userid})-[:OWNS]->(r:RefrigeRator) " +
+@Query("MATCH (u:user {id: $userid})-[:OWNS]->(r:RefrigeRator) " +
         "MATCH (r)-[:STORED_IN]->(f:food) " +
         "WHERE f.productName CONTAINS $productName " +
         "RETURN f")
@@ -59,6 +59,7 @@ List<Barcode> SearchAllFood(@Param("userid") String userid, @Param("productName"
     @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})-[:STORED_IN]->(f:food) RETURN f")
     List<Barcode> findFoodsByRefrigeratorName(@Param("refrigeratorName") String refrigeratorName);
     //lcategory 조회문
+
     @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})-[:STORED_IN]->(f:food {lcategory: $lcategory}) RETURN f")
     List<Barcode> findFoodsByRefrigeratorNameAndCategory(@Param("refrigeratorName") String refrigeratorName, @Param("lcategory") String lcategory);
 
