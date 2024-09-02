@@ -17,14 +17,17 @@ public interface BarcodeRepository extends Neo4jRepository<Barcode, String> {
 //            @Param("productName") String productName);
     //이 쿼리문은 기존 냉장고에 같은 이름이 있는 것을 찾는 코드이다, 지금은 유통기한 이슈로 사용안하도록함,,,,,,
 
-    @Query("MATCH (f:food {productName: $productName}) " +
+    @Query("MATCH (f:food {id: $id}) " +
             "MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName}) " +
-            "CREATE (f)-[:STORED_IN]->(r)")
-    void createRelationship(@Param("productName") String productName, @Param("refrigeratorName") String refrigeratorName);
+            "MERGE (r)-[:STORED_IN]->(f)")
+    void createRelationship(@Param("id") String id, @Param("refrigeratorName") String refrigeratorName);
 
+    //검색 조회
+    @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})-[:STORED_IN]->(f:food {productName: $productName}) RETURN f")
+    List<Barcode> KeywordSearchFood(@Param("refrigeratorName") String refrigeratorName, @Param("productName") String productName);
 
-
-
+    @Query("match (f:food{productName:$productName}) return f;")
+    List<Barcode> SearchAllFood(@Param("productName") String productName);
     /*
     Neo4jRepository에서 엔티티를 삭제할 때는 기본적으로 엔티티의 ID를 사용합니다.
     하지만, 원자재성 식품 같은 경우 바코드가 없을경우를 대비해서
@@ -45,10 +48,10 @@ public interface BarcodeRepository extends Neo4jRepository<Barcode, String> {
     void updateByProductNave(String productName,String id,String count);
 
     //조회문
-    @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})<-[:STORED_IN]-(f:food) RETURN f")
+    @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})-[:STORED_IN]->(f:food) RETURN f")
     List<Barcode> findFoodsByRefrigeratorName(@Param("refrigeratorName") String refrigeratorName);
     //lcategory 조회문
-    @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})<-[:STORED_IN]-(f:food {lcategory: $lcategory}) RETURN f")
+    @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})-[:STORED_IN]->(f:food {lcategory: $lcategory}) RETURN f")
     List<Barcode> findFoodsByRefrigeratorNameAndCategory(@Param("refrigeratorName") String refrigeratorName, @Param("lcategory") String lcategory);
 
 }
