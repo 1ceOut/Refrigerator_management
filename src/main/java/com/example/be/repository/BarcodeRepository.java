@@ -23,11 +23,19 @@ public interface BarcodeRepository extends Neo4jRepository<Barcode, String> {
     void createRelationship(@Param("id") String id, @Param("refrigeratorName") String refrigeratorName);
 
     //검색 조회
-    @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})-[:STORED_IN]->(f:food {productName: $productName}) RETURN f")
+    @Query("MATCH (r:RefrigeRator {refrigeratorName: $refrigeratorName})-[:STORED_IN]->(f:food) " +
+            "WHERE f.productName CONTAINS $productName " +
+            "RETURN f")
     List<Barcode> KeywordSearchFood(@Param("refrigeratorName") String refrigeratorName, @Param("productName") String productName);
 
-    @Query("match (f:food{productName:$productName}) return f;")
-    List<Barcode> SearchAllFood(@Param("productName") String productName);
+
+//    @Query("match (f:food{productName:$productName}) return f;")
+@Query("MATCH (u:User {id: $userid})-[:OWNS]->(r:RefrigeRator) " +
+        "MATCH (r)-[:STORED_IN]->(f:food) " +
+        "WHERE f.productName CONTAINS $productName " +
+        "RETURN f")
+List<Barcode> SearchAllFood(@Param("userid") String userid, @Param("productName") String productName);
+
     /*
     Neo4jRepository에서 엔티티를 삭제할 때는 기본적으로 엔티티의 ID를 사용합니다.
     하지만, 원자재성 식품 같은 경우 바코드가 없을경우를 대비해서

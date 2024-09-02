@@ -75,8 +75,8 @@ public class BarcodeController {
 
     //전체 냉장고 음식 검색 조회
     @PostMapping("/keyword/all/search")
-    public ResponseEntity<List<Barcode>> SearchAllFood(@RequestParam String productName){
-        List<Barcode> barcodes = barcodeService.SearchAllFood(productName);
+    public ResponseEntity<List<Barcode>> SearchAllFood(@RequestParam String userid,@RequestParam String productName){
+        List<Barcode> barcodes = barcodeService.SearchAllFood(userid,productName);
         if (barcodes.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
