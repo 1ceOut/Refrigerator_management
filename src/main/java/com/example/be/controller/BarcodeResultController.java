@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8080", allowCredentials = "true")
+//@CrossOrigin(origins = "http://localhost:8080", allowCredentials = "true")
 @RequiredArgsConstructor
 @RequestMapping("/api/food")
 public class BarcodeResultController {

@@ -16,13 +16,29 @@ public class ScheduledTasks {
         this.userService = userService;
     }
 
-    @Scheduled(cron = "0 0 * * * ?")  // 매시간 정각에 실행, cron 표현식으로 주기 설정
+
+
+
+
+//1 2 3 4 5 6  // 순서
+//* * * * * *  // 실행주기 문자열
+//
+//// 순서별 정리
+//1. 초(0-59)
+//2. 분(0-59)
+//3. 시간(0-23)
+//4. 일(1-31)
+//5. 월(1-12)
+//6. 요일(0-7)
+
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 매일 정각에 실행
     public void reportCurrentTime() {
         List<FoodRemainingDays> products = userService.getRefrigeratorIdWithOneDayRemaining();
-        // 결과 처리 로직
-        products.forEach(product -> {
-            System.out.println("Refrigerator ID: " + product.getRefrigeratorId() +
-                    ", Remaining Days: " + product.getRemainingDays());
-        });
+        for (FoodRemainingDays product : products) {
+            System.out.println("냉장고 UUID: " + product.getRefrigerator_id() + ", 남은 일자 (1일): " + product.getRemainingDays());
+        }
     }
+
+//
+
 }

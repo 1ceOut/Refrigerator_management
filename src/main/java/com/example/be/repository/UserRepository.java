@@ -49,7 +49,7 @@ public interface UserRepository extends Neo4jRepository<User,String> {
 
     @Query("MATCH (b:food) " +
             "WHERE b.expiryDate IS NOT NULL AND b.createdDate IS NOT NULL " +
-            "WITH b, duration.between(datetime(b.createdDate), datetime(b.expiryDate)).days AS remainingDays " +
+            "WITH b, duration.between(date(b.createdDate), date(b.expiryDate)).days AS remainingDays " +
             "WHERE remainingDays = 1 " +
             "RETURN b.refrigeratorName AS refrigerator_id, " +
             "       remainingDays")
