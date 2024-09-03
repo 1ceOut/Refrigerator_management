@@ -31,13 +31,17 @@ public interface UserRepository extends Neo4jRepository<User,String> {
             "MATCH (us:user {id: $userId2}) " +
             "MERGE (u)-[:userSUB]->(us)")
     void createUserSubscribe(String userId1,String userId2);
+
     //유저 구독 취소
-    @Query("MATCH (u:user {id: $userId1})-[r:userSUB]->(us:user {id: $userid2}) DELETE r")
-    void deleteUserSUBscribe(String userId1, String userId2);
+    @Query("MATCH (u:user {id: $userid1})-[r:userSUB]->(us:user {id: $userid2}) DELETE r")
+    void deleteUserSUBscribe(String userid1, String userid2);
 
     //구독자 확인    :u가 구독한 us 호출
     @Query("MATCH (u:user {id:$userId})-[:userSUB]->(us:user) RETURN us")
     List<User> findUserBySubscribe(String userId);
+    //구독자 확인    :u를 구독한 us 호출
+    @Query("MATCH (u:user {id:$userId})<-[:userSUB]-(us:user) RETURN us")
+    List<User> findUserBySubscribeUser(String userId);
 
 
     //냉장고 받으면 관계형성 유저
@@ -47,12 +51,12 @@ public interface UserRepository extends Neo4jRepository<User,String> {
 
 
 
-    @Query("MATCH (b:food) " +
+    @Query("MATCH (b:food)<-[:STORED_IN]-(r:RefrigeRator)" +
             "WHERE b.expiryDate IS NOT NULL AND b.createdDate IS NOT NULL " +
-            "WITH b, duration.between(date(b.createdDate), date(b.expiryDate)).days AS remainingDays " +
-            "WHERE remainingDays = 1 " +
-            "RETURN b.refrigeratorName AS refrigerator_id, " +
-            "       remainingDays")
+            "WITH b, r, duration.between(date(b.createdDate), date(b.expiryDate)).days AS remainingDays " +
+            "WHERE remainingDays = 1 "  +
+            "RETURN r.refrigerator_id AS refrigerator_id, remainingDays ")
+
     List<FoodRemainingDays> findRefrigeratorIdAndRemainingDays();
 
 
