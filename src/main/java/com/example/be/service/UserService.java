@@ -19,9 +19,15 @@ public class UserService {
     public void createUserSubscribe(String userid1,String userid2){
         userRepository.createUserSubscribe(userid1,userid2);
     }
+    public void deleteUserSUBscribe(String userid1, String userid2){
+        userRepository.deleteUserSUBscribe(userid1,userid2);
+    }
 
     public List<User> findUserBySubscribe(String userId){
         return userRepository.findUserBySubscribe(userId);
+    }
+    public List<User> findUserBySubscribeUser(String userId){
+        return userRepository.findUserBySubscribeUser(userId);
     }
 
     public List<User> findUserByRefrigerator(String refrigerator_id){
