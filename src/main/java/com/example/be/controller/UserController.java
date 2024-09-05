@@ -1,5 +1,7 @@
 package com.example.be.controller;
 
+import com.example.be.Request.FoodRequest;
+import com.example.be.data.entity.Barcode;
 import com.example.be.data.entity.User;
 import com.example.be.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -55,10 +57,16 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/find/FoodName")
+    public ResponseEntity<List<FoodRequest>> findFoodById(@RequestParam String food_id){
+        List<FoodRequest> foods = userService.findFoodById(food_id);
+        return ResponseEntity.ok(foods);
+    }
 
     @GetMapping("/find/refriName")
     public ResponseEntity<String> findRefrigeratorByRefrigeratorName(@RequestParam String refrigerator_id){
         String Names = userService.findRefrigeratorByRefrigeratorName(refrigerator_id);
         return ResponseEntity.ok(Names);
     }
+
 }
