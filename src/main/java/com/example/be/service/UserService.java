@@ -38,7 +38,9 @@ public class UserService {
     }
 
 
-
+    public String findRefrigeratorByRefrigeratorName(String refrigerator_id){
+        return userRepository.findRefrigeratorByRefrigeratorName(refrigerator_id);
+    }
 
     public List<FoodRemainingDays> getRefrigeratorAndFoodIdWithThreeDaysRemaining() {
         return userRepository.findFoodIdAndRefrigeratorIdAndRemainingDays();

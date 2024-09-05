@@ -38,7 +38,6 @@ public class RefrigeRatorController {
         return ResponseEntity.noContent().build(); // HTTP 204 상태 코드
     }
 
-
     // 모든 냉장고 조회_현재 안씀
     @GetMapping("/refri/list")
     public List<RefrigeRator> findAll() {
@@ -94,4 +93,11 @@ public class RefrigeRatorController {
         System.out.println("냉장고 ID: " + refrigerator_id);
         return refrigeRatorService.deleteInvite(userId, refrigerator_id);
     }
+
+
+
+
+
+
+
 }

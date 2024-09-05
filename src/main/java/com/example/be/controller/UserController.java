@@ -54,4 +54,11 @@ public class UserController {
         List<User> users = userService.findUserByRefrigerator(refrigerator_id);
         return ResponseEntity.ok(users);
     }
+
+
+    @GetMapping("/find/refriName")
+    public ResponseEntity<String> findRefrigeratorByRefrigeratorName(@RequestParam String refrigerator_id){
+        String Names = userService.findRefrigeratorByRefrigeratorName(refrigerator_id);
+        return ResponseEntity.ok(Names);
+    }
 }

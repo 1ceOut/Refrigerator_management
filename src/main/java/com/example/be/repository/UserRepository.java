@@ -59,6 +59,8 @@ public interface UserRepository extends Neo4jRepository<User,String> {
     List<FoodRemainingDays> findFoodIdAndRefrigeratorIdAndRemainingDays();
 
 
+    @Query("MATCH (r:RefrigeRator {refrigerator_id:$refrigerator_id}) return r.refrigeratorName")
+    String findRefrigeratorByRefrigeratorName(String refrigerator_id);
 
 
 
