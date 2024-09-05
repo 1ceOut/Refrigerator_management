@@ -40,7 +40,8 @@ public class UserService {
 
 
 
-    public List<FoodRemainingDays> getRefrigeratorIdWithOneDayRemaining() {
-        return userRepository.findRefrigeratorIdAndRemainingDays();
+    public List<FoodRemainingDays> getRefrigeratorAndFoodIdWithThreeDaysRemaining() {
+        return userRepository.findFoodIdAndRefrigeratorIdAndRemainingDays();
     }
+
 }

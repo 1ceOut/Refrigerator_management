@@ -4,6 +4,12 @@ spring:
     authentication:
       username: neo4j
       password: Pa$$word
+  kafka:
+    bootstrap-servers: 223.130.139.42:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 logging:
   level:
     org:

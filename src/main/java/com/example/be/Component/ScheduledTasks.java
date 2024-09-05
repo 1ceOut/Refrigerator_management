@@ -2,22 +2,32 @@ package com.example.be.Component;
 
 import com.example.be.Request.FoodRemainingDays;
 import com.example.be.service.UserService;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ScheduledTasks {
 
     private final UserService userService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public ScheduledTasks(UserService userService) {
+    public ScheduledTasks(UserService userService, KafkaTemplate<String, String> kafkaTemplate) {
         this.userService = userService;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
-
-
+    public void sendItems(FoodRemainingDays item) {
+        Map<String, String> map = new HashMap<>();
+        map.put("refrigerator_id", item.getRefrigerator_id());
+        map.put("remainingDays", Long.toString(item.getRemainingDays()));
+        map.put("id",item.getId());
+        kafkaTemplate.send("report-food", map.toString());
+    }
 
 
 //1 2 3 4 5 6  // 순서
@@ -33,12 +43,16 @@ public class ScheduledTasks {
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 매일 정각에 실행
     public void reportCurrentTime() {
-        List<FoodRemainingDays> products = userService.getRefrigeratorIdWithOneDayRemaining();
+        List<FoodRemainingDays> products = userService.getRefrigeratorAndFoodIdWithThreeDaysRemaining();
         for (FoodRemainingDays product : products) {
-            System.out.println("냉장고 UUID: " + product.getRefrigerator_id() + ", 남은 일자 (1일): " + product.getRemainingDays());
-        }
-    }
+            sendItems(product);
+            System.out.println("냉장고 UUID: " + product.getRefrigerator_id() +
+                    ", 음식 UUID: " + product.getId() +
+                    ", 남은 일자 (3일): " + product.getRemainingDays());
+
 
 //
 
+        }
+    }
 }
