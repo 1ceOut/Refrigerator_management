@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
@@ -14,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableNeo4jRepositories(basePackages = "com.example.be.repository")
 @ComponentScan({"naver.storage","com.example.*"})
 @EnableScheduling
+@EnableKafka
 public class BeApplication {
 
 	public static void main(String[] args) {
