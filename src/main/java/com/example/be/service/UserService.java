@@ -1,6 +1,8 @@
 package com.example.be.service;
 
 import com.example.be.Request.FoodRemainingDays;
+import com.example.be.Request.FoodRequest;
+import com.example.be.data.entity.Barcode;
 import com.example.be.data.entity.User;
 import com.example.be.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,9 @@ public class UserService {
 
     public String findRefrigeratorByRefrigeratorName(String refrigerator_id){
         return userRepository.findRefrigeratorByRefrigeratorName(refrigerator_id);
+    }
+    public List<FoodRequest> findFoodById(String food_id){
+        return userRepository.findFoodById(food_id);
     }
 
     public List<FoodRemainingDays> getRefrigeratorAndFoodIdWithThreeDaysRemaining() {

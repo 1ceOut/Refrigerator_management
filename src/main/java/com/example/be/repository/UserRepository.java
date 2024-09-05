@@ -1,6 +1,8 @@
 package com.example.be.repository;
 
 import com.example.be.Request.FoodRemainingDays;
+import com.example.be.Request.FoodRequest;
+import com.example.be.data.entity.Barcode;
 import com.example.be.data.entity.RefrigeRator;
 import com.example.be.data.entity.User;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -61,6 +63,9 @@ public interface UserRepository extends Neo4jRepository<User,String> {
 
     @Query("MATCH (r:RefrigeRator {refrigerator_id:$refrigerator_id}) return r.refrigeratorName")
     String findRefrigeratorByRefrigeratorName(String refrigerator_id);
+
+    @Query("MATCH (f:food {id: $food_id}) RETURN f.productName AS productName, f.lcategory AS lcategory")
+    List<FoodRequest> findFoodById(String food_id);
 
 
 
