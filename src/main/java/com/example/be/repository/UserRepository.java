@@ -31,7 +31,7 @@ public interface UserRepository extends Neo4jRepository<User,String> {
     //유저 구독 :u가 :us를 구독
     @Query("MATCH (u:user {id: $userId1}) " +
             "MATCH (us:user {id: $userId2}) " +
-            "MERGE (u)-[:userSUB]->(us)")
+            "MERGE (u)<-[:userSUB]-(us)")
     void createUserSubscribe(String userId1,String userId2);
 
     //유저 구독 취소
