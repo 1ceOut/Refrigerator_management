@@ -53,12 +53,22 @@ public interface UserRepository extends Neo4jRepository<User,String> {
 
 
 
+//    @Query("MATCH (b:food)<-[:STORED_IN]-(r:RefrigeRator) " +
+//            "WHERE b.expiryDate IS NOT NULL AND b.createdDate IS NOT NULL " +
+//            "WITH b, r, duration.between(date(b.createdDate), date(b.expiryDate)).days AS remainingDays " +
+//            "WHERE remainingDays = 3 " +
+//            "RETURN b.id AS id, r.refrigerator_id AS refrigerator_id, remainingDays")
+//    List<FoodRemainingDays> findFoodIdAndRefrigeratorIdAndRemainingDays();
+
     @Query("MATCH (b:food)<-[:STORED_IN]-(r:RefrigeRator) " +
-            "WHERE b.expiryDate IS NOT NULL AND b.createdDate IS NOT NULL " +
-            "WITH b, r, duration.between(date(b.createdDate), date(b.expiryDate)).days AS remainingDays " +
-            "WHERE remainingDays = 3 " +
+            "WHERE b.expiryDate IS NOT NULL " +
+            "WITH b, r, duration.between(date(), date(datetime(b.expiryDate))).days AS remainingDays " +
+            "WHERE remainingDays <= 3 " +
             "RETURN b.id AS id, r.refrigerator_id AS refrigerator_id, remainingDays")
     List<FoodRemainingDays> findFoodIdAndRefrigeratorIdAndRemainingDays();
+
+
+
 
 
     @Query("MATCH (r:RefrigeRator {refrigerator_id:$refrigerator_id}) return r.refrigeratorName")

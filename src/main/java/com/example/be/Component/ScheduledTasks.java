@@ -42,17 +42,14 @@ public class ScheduledTasks {
 //6. 요일(0-7)
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 매일 정각에 실행
+//    @Scheduled(cron = "0/1 * * * * *", zone = "Asia/Seoul")  // 매초 마다 실행
     public void reportCurrentTime() {
         List<FoodRemainingDays> products = userService.getRefrigeratorAndFoodIdWithThreeDaysRemaining();
         for (FoodRemainingDays product : products) {
             sendItems(product);
             System.out.println("냉장고 UUID: " + product.getRefrigerator_id() +
                     ", 음식 UUID: " + product.getId() +
-                    ", 남은 일자 (3일): " + product.getRemainingDays());
-
-
-//
-
+                    ", 남은 일자 (3일 이하 (-)로 나올경우 유통기한이 지난 친구): " + product.getRemainingDays());
         }
     }
 }
