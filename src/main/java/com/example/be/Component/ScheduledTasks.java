@@ -42,7 +42,7 @@ public class ScheduledTasks {
 //6. 요일(0-7)
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 매일 정각에 실행
-//    @Scheduled(cron = "0/1 * * * * *", zone = "Asia/Seoul")  // 매초 마다 실행
+//    @Scheduled(cron = "0 0/1 * * * *", zone = "Asia/Seoul")  // 매초 마다 실행
     public void reportCurrentTime() {
         List<FoodRemainingDays> products = userService.getRefrigeratorAndFoodIdWithThreeDaysRemaining();
         for (FoodRemainingDays product : products) {

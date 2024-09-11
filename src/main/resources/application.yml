@@ -13,6 +13,8 @@ spring:
 logging:
   level:
     org:
+      org.springframework.cloud.openfeign: DEBUG
+      feign.Logger: DEBUG
       springframework:
         data:
           neo4j: DEBUG # 내부적으로 돌아가는 native cyperQuery를 로그로 찍어준다.
@@ -29,5 +31,9 @@ foodsafety:
   api:
     url: https://openapi.foodsafetykorea.go.kr
     api-key: 3369ab4c48b84f35a46c
+
+
+
+
 
 
