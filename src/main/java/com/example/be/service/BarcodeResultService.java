@@ -19,4 +19,9 @@ public class BarcodeResultService {
     public String getFoodSafetyInfo(String barcode) {
         return barcodeResultClient.getFoodSafetyInfo(apiKey, barcode);
     }
+
+    public String getRecipesByIngredient(String ingredient) {
+
+        return barcodeResultClient.getRecipesByIngredient(apiKey,ingredient);
+    }
 }
